@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-200 font-sans antialiased;
+  }
+
+  /* Offset anchor targets so the sticky navbar doesn't cover section headings */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold
+           transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400
+           focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-500;
+  }
+  .btn-outline {
+    @apply btn border border-slate-700 text-slate-200 hover:border-brand-400 hover:text-white;
+  }
+  .btn-ghost {
+    @apply btn text-slate-300 hover:bg-slate-800 hover:text-white;
+  }
+
+  .card {
+    @apply rounded-2xl border border-white/10 bg-slate-900/40 shadow-lg backdrop-blur-xl;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-sm text-slate-100
+           placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1
+           focus:ring-brand-500;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-slate-300;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-slate-700 bg-slate-800/60 px-2.5 py-1
+           text-xs font-medium text-slate-300;
+  }
+
+  /* Animated multi-stop gradient text for the hero name */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(110deg, #c7d2fe 0%, #818cf8 28%, #22d3ee 60%, #a78bfa 100%);
+    background-size: 200% 100%;
+  }
+}
+
+/* Quality floor: honor users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

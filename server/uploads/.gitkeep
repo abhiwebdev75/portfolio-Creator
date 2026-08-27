@@ -1,0 +1,2 @@
+Uploaded images are stored in this folder at runtime and served by Express at /uploads.
+The folder is kept in version control via this file; its contents are gitignored.

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(rm -f _smoketest.mjs)",
+      "Bash(npm install *)"
+    ]
+  }
+}
