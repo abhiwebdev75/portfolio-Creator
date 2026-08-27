@@ -14,3 +14,9 @@ connectDB()
     console.error('Failed to start server:', err.message);
     process.exit(1);
   });
+
+  app.get("/", (req, res) => {
+  res.json({
+    message: "Portfolio API is running",
+  });
+});
