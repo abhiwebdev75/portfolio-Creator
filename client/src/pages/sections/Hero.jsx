@@ -576,7 +576,7 @@ export default function Hero({ profile }) {
             absolute
 
             right-[-3%]
-            top-1/4
+            top-[22%]
 
             z-[5]
 
@@ -585,17 +585,17 @@ export default function Hero({ profile }) {
 
             md:block
 
-            h-[76vh]
-            w-[54vw]
+            h-[72vh]
+            w-[52vw]
 
-            lg:h-[82vh]
-            lg:w-[57vw]
+            lg:h-[78vh]
+            lg:w-[55vw]
 
-            xl:h-[88vh]
-            xl:w-[59vw]
+            xl:h-[84vh]
+            xl:w-[57vw]
 
-            2xl:h-[90vh]
-            2xl:w-[61vw]
+            2xl:h-[86vh]
+            2xl:w-[59vw]
 
             max-w-[1050px]
           "
@@ -1235,14 +1235,14 @@ export default function Hero({ profile }) {
             absolute
 
             left-1/2
-            bottom-0
+            bottom-2
 
             z-[4]
 
             block
 
-            h-[42vh]
-            w-[92vw]
+            h-[38vh]
+            w-[88vw]
 
             -translate-x-1/2
 
