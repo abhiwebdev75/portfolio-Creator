@@ -15,7 +15,6 @@ import experienceRoutes from './routes/experience.js';
 import certificateRoutes from './routes/certificates.js';
 import messageRoutes from './routes/messages.js';
 import uploadRoutes from './routes/upload.js';
-import heroRoutes from './routes/heroRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
