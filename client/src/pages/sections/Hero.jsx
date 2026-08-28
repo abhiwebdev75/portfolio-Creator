@@ -266,10 +266,10 @@ export default function Hero({ profile }) {
           className="
             absolute
             right-[10%]
-            top-1/2
+            top-1/3
             h-[650px]
             w-[650px]
-            -translate-y-1/2
+            -translate-y-1/3
             rounded-full
             bg-white/[0.025]
             blur-[160px]
@@ -576,7 +576,7 @@ export default function Hero({ profile }) {
             absolute
 
             right-[-3%]
-            top-1/2
+            top-1/4
 
             z-[5]
 
