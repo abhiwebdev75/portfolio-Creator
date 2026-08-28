@@ -1,5 +1,3 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -15,8 +13,6 @@ import experienceRoutes from './routes/experience.js';
 import certificateRoutes from './routes/certificates.js';
 import messageRoutes from './routes/messages.js';
 import uploadRoutes from './routes/upload.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
@@ -37,9 +33,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 
-// Static: uploaded files (served at /uploads/<filename>)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
@@ -53,7 +46,6 @@ app.use('/api/certificates', certificateRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/upload', uploadRoutes);
 
-app.use('/api/hero', heroRoutes);
 // Error handling (must be last)
 app.get('/', (req, res) => {
   res.json({
