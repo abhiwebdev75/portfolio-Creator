@@ -87,7 +87,13 @@ export default function ProfileEditor() {
               <input id="email" type="email" className="input" value={form.email} onChange={(e) => set('email', e.target.value)} />
             </div>
           </div>
-          <ImageUpload label="Avatar / photo" value={form.avatarUrl} onChange={(url) => set('avatarUrl', url)} />
+          <ImageUpload
+            label="Avatar / photo"
+            value={form.avatarUrl}
+            onChange={(url) => set('avatarUrl', url)}
+            showChatGPT
+            pngOnly
+          />
           <div>
             <label className="label" htmlFor="resumeUrl">Résumé URL</label>
             <input id="resumeUrl" className="input" value={form.resumeUrl} onChange={(e) => set('resumeUrl', e.target.value)} placeholder="Link to a hosted PDF (optional)" />

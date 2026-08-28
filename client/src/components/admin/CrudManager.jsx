@@ -175,7 +175,7 @@ export default function CrudManager({ title, description, endpoint, fields, rend
 
       {/* Modal form */}
       {editing !== null && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4 sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4 sm:pt-16">
           <div className="card my-8 w-full max-w-lg p-6">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-white">

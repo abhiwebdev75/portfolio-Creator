@@ -12,6 +12,8 @@ export default function ImageUpload({
   value,
   onChange,
   label = 'Hero Image',
+  showChatGPT = false,
+  pngOnly = false,
 }) {
 
   const inputRef =
@@ -43,12 +45,7 @@ export default function ImageUpload({
       if (!file) return;
 
 
-      // ONLY PNG
-
-      if (
-        file.type !==
-        'image/png'
-      ) {
+      if (pngOnly && file.type !== 'image/png') {
 
         toast.error(
           'Only PNG images are allowed.'
@@ -70,7 +67,7 @@ export default function ImageUpload({
 
 
       toast.success(
-        'PNG selected. Ready to upload.'
+        `${pngOnly ? 'PNG' : 'Image'} selected. Ready to upload.`
       );
 
 
@@ -79,7 +76,7 @@ export default function ImageUpload({
 
 
   // ==========================================================
-  // UPLOAD PNG
+  // UPLOAD IMAGE
   // ==========================================================
 
   const uploadPNG =
@@ -95,10 +92,7 @@ export default function ImageUpload({
       }
 
 
-      if (
-        selectedFile.type !==
-        'image/png'
-      ) {
+      if (pngOnly && selectedFile.type !== 'image/png') {
 
         toast.error(
           'Only PNG images are allowed.'
@@ -141,7 +135,7 @@ export default function ImageUpload({
 
 
         toast.success(
-          'Hero PNG uploaded successfully.'
+          `${pngOnly ? 'Hero PNG' : 'Image'} uploaded successfully.`
         );
 
 
@@ -361,7 +355,7 @@ After processing, show me the final transparent PNG so I can download it.
       <input
         ref={inputRef}
         type="file"
-        accept="image/png"
+        accept={pngOnly ? 'image/png' : 'image/*'}
         onChange={handleFile}
         className="
           text-sm
@@ -399,52 +393,56 @@ After processing, show me the final transparent PNG so I can download it.
       )}
 
 
-      {/* ====================================================
-          CHATGPT BUTTON
-      ==================================================== */}
+      {showChatGPT && (
+        <>
+          {/* ====================================================
+              CHATGPT BUTTON
+          ==================================================== */}
 
-      <button
-        type="button"
-        onClick={openChatGPT}
-        className="
-          flex
-          items-center
-          gap-2
-          rounded-lg
-          border
-          border-slate-700
-          bg-slate-900
-          px-5
-          py-2.5
-          text-sm
-          font-medium
-          text-white
-          transition
-          hover:border-white/30
-          hover:bg-slate-800
-        "
-      >
-        ✨ Open ChatGPT Prompt
-      </button>
-
-
-      <p
-        className="
-          max-w-md
-          text-xs
-          leading-relaxed
-          text-slate-600
-        "
-      >
-        Use ChatGPT to remove the original
-        background and create a transparent PNG.
-        Then download the PNG and select it here.
-      </p>
+          <button
+            type="button"
+            onClick={openChatGPT}
+            className="
+              flex
+              items-center
+              gap-2
+              rounded-lg
+              border
+              border-slate-700
+              bg-slate-900
+              px-5
+              py-2.5
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:border-white/30
+              hover:bg-slate-800
+            "
+          >
+            ✨ Open ChatGPT Prompt
+          </button>
 
 
-      {/* ====================================================
-          UPLOAD PNG
-      ==================================================== */}
+          <p
+            className="
+              max-w-md
+              text-xs
+              leading-relaxed
+              text-slate-600
+            "
+          >
+            Use ChatGPT to remove the original
+            background and create a transparent PNG.
+            Then download the PNG and select it here.
+          </p>
+        </>
+      )}
+
+
+        {/* ====================================================
+          UPLOAD IMAGE
+        ==================================================== */}
 
       {selectedFile && (
 
@@ -468,7 +466,7 @@ After processing, show me the final transparent PNG so I can download it.
         >
           {uploading
             ? 'Uploading…'
-            : 'Upload PNG to Portfolio'}
+            : `${pngOnly ? 'Upload PNG' : 'Upload image'} to Portfolio`}
         </button>
 
       )}
