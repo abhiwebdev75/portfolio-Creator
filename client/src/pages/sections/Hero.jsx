@@ -14,9 +14,9 @@ import SocialLinks from '../../components/SocialLinks.jsx';
 import { mediaUrl } from '../../api/client';
 
 
-// ======================================================
+// ============================================================
 // TEXT ANIMATION
-// ======================================================
+// ============================================================
 
 const container = {
   hidden: {},
@@ -37,6 +37,7 @@ const item = {
   show: {
     opacity: 1,
     y: 0,
+
     transition: {
       duration: 0.6,
       ease: [0.22, 1, 0.36, 1],
@@ -45,115 +46,154 @@ const item = {
 };
 
 
-// ======================================================
+// ============================================================
 // HERO
-// ======================================================
+// ============================================================
 
 export default function Hero({ profile }) {
-  const name = profile?.name || 'Your Name';
+  const name =
+    profile?.name || 'Your Name';
 
   const headline =
-    profile?.headline || 'Full-Stack Developer';
+    profile?.headline ||
+    'Full-Stack Developer';
 
-  const reduce = useReducedMotion();
+  const reduce =
+    useReducedMotion();
 
-  // ====================================================
-  // HERO REF
-  // ====================================================
 
-  const heroRef = useMotionValue(null);
+  // ==========================================================
+  // HERO SECTION REF
+  // ==========================================================
 
-  /*
-   * We use a normal DOM ref separately because
-   * useScroll needs the actual section element.
-   */
+  const heroRef =
+    useMotionValue(null);
+
   const sectionRef = (node) => {
     heroRef.set(node);
   };
 
 
-  // ====================================================
-  // SCROLL ANIMATION
-  // ====================================================
+  // ==========================================================
+  // SCROLL
+  // ==========================================================
 
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
+  const { scrollYProgress } =
+    useScroll({
+      target: heroRef,
+      offset: [
+        'start start',
+        'end start',
+      ],
+    });
 
 
   /*
-   * Desktop:
-   * image moves far toward the right.
+   * Image starts in its normal position.
    *
-   * Mobile:
-   * the same movement is intentionally smaller
-   * through responsive CSS positioning.
+   * As the user scrolls:
+   *
+   * 0%   → normal
+   * 45%  → moves right
+   * 100% → completely disappears
    */
 
   const imageX = useTransform(
     scrollYProgress,
-    [0, 1],
-    [0, reduce ? 0 : 650]
+    [0, 0.45, 1],
+    [0, 100, 600]
   );
+
+
+  const imageY = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [0, -10, -40]
+  );
+
 
   const imageScale = useTransform(
     scrollYProgress,
-    [0, 1],
-    [1, reduce ? 1 : 1.1]
+    [0, 0.55, 1],
+    [1, 1.02, 1.08]
   );
+
 
   const imageOpacity = useTransform(
     scrollYProgress,
-    [0, 0.65, 1],
-    [1, 0.65, 0]
+    [0, 0.5, 0.85, 1],
+    [1, 1, 0.35, 0]
   );
+
 
   const imageBlur = useTransform(
     scrollYProgress,
     [0, 0.7, 1],
-    [0, 2, 8]
+    [0, 1, 8]
   );
 
 
-  // ====================================================
-  // POINTER PARALLAX
-  // ====================================================
+  // ==========================================================
+  // POINTER / HOVER PARALLAX
+  // ==========================================================
 
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
+  const mx =
+    useMotionValue(0);
 
-  const gx = useSpring(mx, {
-    stiffness: 40,
-    damping: 20,
-  });
+  const my =
+    useMotionValue(0);
 
-  const gy = useSpring(my, {
-    stiffness: 40,
-    damping: 20,
-  });
+
+  const gx =
+    useSpring(mx, {
+      stiffness: 45,
+      damping: 22,
+    });
+
+
+  const gy =
+    useSpring(my, {
+      stiffness: 45,
+      damping: 22,
+    });
 
 
   const onMouseMove = (event) => {
     if (reduce) return;
 
-    mx.set(
-      (event.clientX / window.innerWidth - 0.5) * 30
-    );
+    const x =
+      (event.clientX /
+        window.innerWidth -
+        0.5) *
+      18;
 
-    my.set(
-      (event.clientY / window.innerHeight - 0.5) * 30
-    );
+    const y =
+      (event.clientY /
+        window.innerHeight -
+        0.5) *
+      14;
+
+    mx.set(x);
+    my.set(y);
   };
 
 
-  // ====================================================
-  // IMAGE
-  // ====================================================
+  const onMouseLeave = () => {
+    if (reduce) return;
 
-  const avatar = profile?.avatarUrl
-    ? mediaUrl(profile.avatarUrl)
-    : null;
+    mx.set(0);
+    my.set(0);
+  };
+
+
+  // ==========================================================
+  // IMAGE
+  // ==========================================================
+
+  const avatar =
+    profile?.avatarUrl
+      ? mediaUrl(profile.avatarUrl)
+      : null;
 
 
   return (
@@ -161,6 +201,7 @@ export default function Hero({ profile }) {
       id="hero"
       ref={sectionRef}
       onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
       className="
         relative
         min-h-screen
@@ -170,9 +211,9 @@ export default function Hero({ profile }) {
       "
     >
 
-      {/* =================================================
-          ATMOSPHERIC BACKGROUND
-      ================================================= */}
+      {/* ====================================================
+          BACKGROUND ATMOSPHERE
+      ==================================================== */}
 
       <div
         className="
@@ -184,45 +225,53 @@ export default function Hero({ profile }) {
         "
       >
 
-        {/* Main radial atmosphere */}
+        {/* Main soft light */}
 
         <div
           className="
             absolute
-            inset-0
-            bg-[radial-gradient(ellipse_at_75%_50%,rgba(255,255,255,0.055),transparent_42%)]
-          "
-        />
-
-        {/* Bottom atmosphere */}
-
-        <div
-          className="
-            absolute
-            bottom-[-15%]
-            left-[20%]
-            h-[500px]
-            w-[500px]
+            left-[55%]
+            top-[35%]
+            h-[520px]
+            w-[520px]
+            -translate-x-1/2
+            -translate-y-1/2
             rounded-full
-            bg-white/[0.025]
+            bg-white/[0.035]
             blur-[140px]
           "
         />
 
-        {/* Top atmosphere */}
+
+        {/* Colored ambient glow */}
 
         <div
           className="
             absolute
             right-[10%]
-            top-[5%]
-            h-[400px]
-            w-[400px]
+            top-[20%]
+            h-[420px]
+            w-[420px]
             rounded-full
-            bg-white/[0.035]
+            bg-fuchsia-500/[0.025]
+            blur-[130px]
+          "
+        />
+
+
+        <div
+          className="
+            absolute
+            right-[20%]
+            bottom-[5%]
+            h-[360px]
+            w-[360px]
+            rounded-full
+            bg-cyan-400/[0.02]
             blur-[120px]
           "
         />
+
 
         {/* Very subtle grid */}
 
@@ -230,18 +279,18 @@ export default function Hero({ profile }) {
           className="
             absolute
             inset-0
-            opacity-[0.035]
+            opacity-[0.025]
             [background-image:linear-gradient(rgba(255,255,255,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.5)_1px,transparent_1px)]
-            [background-size:70px_70px]
+            [background-size:80px_80px]
           "
         />
 
       </div>
 
 
-      {/* =================================================
+      {/* ====================================================
           FLOATING PARTICLES
-      ================================================= */}
+      ==================================================== */}
 
       <div
         className="
@@ -253,8 +302,10 @@ export default function Hero({ profile }) {
         "
       >
 
-        {Array.from({ length: 28 }).map((_, index) => (
-          <span
+        {Array.from({
+          length: 24,
+        }).map((_, index) => (
+          <motion.span
             key={index}
             className="
               absolute
@@ -263,14 +314,48 @@ export default function Hero({ profile }) {
               rounded-full
               bg-white
               opacity-20
-              shadow-[0_0_8px_rgba(255,255,255,0.8)]
-              animate-particle-float
+              shadow-[0_0_10px_rgba(255,255,255,0.8)]
             "
             style={{
-              left: `${(index * 37) % 100}%`,
-              top: `${(index * 61) % 100}%`,
-              animationDelay: `${(index % 8) * 0.7}s`,
-              animationDuration: `${5 + (index % 5)}s`,
+              left: `${(index * 41) % 100}%`,
+              top: `${(index * 67) % 100}%`,
+            }}
+            animate={
+              reduce
+                ? {}
+                : {
+                    y: [
+                      0,
+                      -18,
+                      0,
+                    ],
+
+                    x: [
+                      0,
+                      6,
+                      0,
+                    ],
+
+                    opacity: [
+                      0.1,
+                      0.35,
+                      0.1,
+                    ],
+                  }
+            }
+            transition={{
+              duration:
+                5 +
+                (index % 5),
+
+              repeat: Infinity,
+
+              delay:
+                (index % 7) *
+                0.5,
+
+              ease:
+                'easeInOut',
             }}
           />
         ))}
@@ -278,9 +363,9 @@ export default function Hero({ profile }) {
       </div>
 
 
-      {/* =================================================
-          POINTER AMBIENT LIGHT
-      ================================================= */}
+      {/* ====================================================
+          POINTER LIGHT
+      ==================================================== */}
 
       <motion.div
         style={{
@@ -298,10 +383,10 @@ export default function Hero({ profile }) {
         <div
           className="
             absolute
-            right-[10%]
-            top-[20%]
-            h-[350px]
-            w-[350px]
+            right-[18%]
+            top-[25%]
+            h-[280px]
+            w-[280px]
             rounded-full
             bg-white/[0.025]
             blur-[100px]
@@ -311,27 +396,54 @@ export default function Hero({ profile }) {
       </motion.div>
 
 
-      {/* =================================================
-          CINEMATIC IMAGE
-      ================================================= */}
+      {/* ====================================================
+          HERO IMAGE
+      ==================================================== */}
 
       {avatar && (
-        <div
+        <motion.div
+          style={{
+            x: gx,
+            y: gy,
+          }}
           className="
             pointer-events-none
             absolute
-            inset-y-0
-            right-0
+            right-[3%]
+            top-1/2
             z-[3]
-            w-[68%]
-            sm:w-[65%]
-            lg:w-[62%]
+            hidden
+            h-[72vh]
+            w-[44vw]
+            -translate-y-1/2
+            md:block
           "
         >
 
-          {/* ---------------------------------------------
-              BLURRED ATMOSPHERIC IMAGE
-          ---------------------------------------------- */}
+          {/* ==================================================
+              VERY SOFT COLOR GLOW
+          ================================================== */}
+
+          <motion.div
+            style={{
+              opacity:
+                imageOpacity,
+              scale:
+                imageScale,
+            }}
+            className="
+              absolute
+              inset-[8%]
+              rounded-full
+              bg-white/10
+              blur-[80px]
+            "
+          />
+
+
+          {/* ==================================================
+              BLURRED COLOR ATMOSPHERE
+          ================================================== */}
 
           <motion.img
             src={avatar}
@@ -339,33 +451,38 @@ export default function Hero({ profile }) {
             aria-hidden="true"
             style={{
               x: imageX,
+              y: imageY,
               scale: imageScale,
-              opacity: imageOpacity,
-              filter: 'grayscale(100%) blur(35px)',
+              opacity:
+                useTransform(
+                  imageOpacity,
+                  [0, 1],
+                  [0, 0.32]
+                ),
+              filter:
+                'blur(32px) saturate(1.25)',
             }}
             className="
               absolute
-              inset-[-8%]
-              h-[116%]
-              w-[116%]
-              object-cover
-              mix-blend-screen
-              opacity-30
-              mask-[radial-gradient(ellipse_65%_65%_at_55%_50%,black_20%,rgba(0,0,0,0.75)_55%,transparent_100%)]
-              [-webkit-mask-image:radial-gradient(ellipse_65%_65%_at_55%_50%,black_20%,rgba(0,0,0,0.75)_55%,transparent_100%)]
+              left-[8%]
+              top-[5%]
+              h-[90%]
+              w-[84%]
+              object-contain
             "
           />
 
 
-          {/* ---------------------------------------------
+          {/* ==================================================
               MAIN IMAGE
-          ---------------------------------------------- */}
+          ================================================== */}
 
           <motion.img
             src={avatar}
             alt={name}
             style={{
               x: imageX,
+              y: imageY,
               scale: imageScale,
               opacity: imageOpacity,
               filter: imageBlur,
@@ -375,64 +492,87 @@ export default function Hero({ profile }) {
               inset-0
               h-full
               w-full
-              object-cover
-              object-center
-              grayscale
-              contrast-[1.15]
-              brightness-[0.9]
-              mix-blend-screen
-              mask-[radial-gradient(ellipse_68%_72%_at_55%_50%,black_25%,rgba(0,0,0,0.95)_48%,rgba(0,0,0,0.65)_65%,transparent_100%)]
-              [-webkit-mask-image:radial-gradient(ellipse_68%_72%_at_55%_50%,black_25%,rgba(0,0,0,0.95)_48%,rgba(0,0,0,0.65)_65%,transparent_100%)]
+              object-contain
+              drop-shadow-[0_0_25px_rgba(255,255,255,0.12)]
             "
           />
 
 
-          {/* ---------------------------------------------
-              WHITE ATMOSPHERIC LIGHT
-          ---------------------------------------------- */}
+          {/* ==================================================
+              SOFT LIGHT AROUND SUBJECT
+          ================================================== */}
 
           <div
             className="
-              absolute
-              right-[15%]
-              top-1/2
-              h-[450px]
-              w-[450px]
-              -translate-y-1/2
-              rounded-full
-              bg-white/[0.045]
-              blur-[100px]
-            "
-          />
-
-
-          {/* ---------------------------------------------
-              EDGE FADE
-          ---------------------------------------------- */}
-
-          <div
-            className="
+              pointer-events-none
               absolute
               inset-0
-              bg-[linear-gradient(to_right,black_0%,transparent_25%,transparent_75%,black_100%)]
+              bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.25)_62%,black_100%)]
             "
           />
+
+
+          {/* ==================================================
+              LEFT BLEND
+          ================================================== */}
 
           <div
             className="
+              pointer-events-none
               absolute
-              inset-0
-              bg-[linear-gradient(to_bottom,black_0%,transparent_18%,transparent_78%,black_100%)]
+              inset-y-0
+              left-0
+              w-[35%]
+              bg-gradient-to-r
+              from-black
+              via-black/70
+              to-transparent
             "
           />
 
-        </div>
+
+          {/* ==================================================
+              TOP BLEND
+          ================================================== */}
+
+          <div
+            className="
+              pointer-events-none
+              absolute
+              inset-x-0
+              top-0
+              h-[18%]
+              bg-gradient-to-b
+              from-black
+              to-transparent
+            "
+          />
+
+
+          {/* ==================================================
+              BOTTOM BLEND
+          ================================================== */}
+
+          <div
+            className="
+              pointer-events-none
+              absolute
+              inset-x-0
+              bottom-0
+              h-[24%]
+              bg-gradient-to-t
+              from-black
+              to-transparent
+            "
+          />
+
+        </motion.div>
       )}
 
 
-      {/* =================================================
-          MAIN CONTENT
-      ================================================= */}
+      {/* ====================================================
+          CONTENT
+      ==================================================== */}
 
       <div
         className="
@@ -443,13 +583,9 @@ export default function Hero({ profile }) {
           min-h-[calc(100vh-4rem)]
           items-center
           gap-10
-          md:grid-cols-[1.25fr_1fr]
+          md:grid-cols-[1.35fr_1fr]
         "
       >
-
-        {/* =================================================
-            TEXT
-        ================================================= */}
 
         <motion.div
           variants={container}
@@ -462,7 +598,7 @@ export default function Hero({ profile }) {
           "
         >
 
-          {/* Small intro */}
+          {/* INTRO */}
 
           <motion.p
             variants={item}
@@ -492,7 +628,7 @@ export default function Hero({ profile }) {
           </motion.p>
 
 
-          {/* Name */}
+          {/* NAME */}
 
           <motion.h1
             variants={item}
@@ -513,7 +649,7 @@ export default function Hero({ profile }) {
                 bg-gradient-to-r
                 from-white
                 via-white
-                to-white/45
+                to-white/50
                 bg-clip-text
                 text-transparent
               "
@@ -524,7 +660,7 @@ export default function Hero({ profile }) {
           </motion.h1>
 
 
-          {/* Headline */}
+          {/* HEADLINE */}
 
           <motion.p
             variants={item}
@@ -541,7 +677,7 @@ export default function Hero({ profile }) {
           </motion.p>
 
 
-          {/* Bio */}
+          {/* BIO */}
 
           {profile?.bio && (
             <motion.p
@@ -558,7 +694,7 @@ export default function Hero({ profile }) {
           )}
 
 
-          {/* Buttons */}
+          {/* BUTTONS */}
 
           <motion.div
             variants={item}
@@ -581,11 +717,11 @@ export default function Hero({ profile }) {
                 text-sm
                 font-semibold
                 text-black
-                shadow-[0_0_30px_rgba(255,255,255,0.18)]
+                shadow-[0_0_30px_rgba(255,255,255,0.15)]
                 transition
                 duration-300
                 hover:-translate-y-1
-                hover:shadow-[0_0_40px_rgba(255,255,255,0.35)]
+                hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]
               "
             >
               View my work
@@ -598,7 +734,7 @@ export default function Hero({ profile }) {
                 rounded-full
                 border
                 border-white/20
-                bg-black/20
+                bg-black/30
                 px-6
                 py-3
                 text-sm
@@ -617,7 +753,7 @@ export default function Hero({ profile }) {
           </motion.div>
 
 
-          {/* Social Links */}
+          {/* SOCIAL LINKS */}
 
           <motion.div
             variants={item}
@@ -632,24 +768,16 @@ export default function Hero({ profile }) {
         </motion.div>
 
 
-        {/* =================================================
-            EMPTY RIGHT COLUMN
-            Image is intentionally absolute.
-        ================================================= */}
+        {/* Empty column reserved for image */}
 
-        <div
-          className="
-            hidden
-            md:block
-          "
-        />
+        <div className="hidden md:block" />
 
       </div>
 
 
-      {/* =================================================
+      {/* ====================================================
           LOCATION
-      ================================================= */}
+      ==================================================== */}
 
       {profile?.location && (
         <div
@@ -677,9 +805,9 @@ export default function Hero({ profile }) {
       )}
 
 
-      {/* =================================================
+      {/* ====================================================
           SCROLL INDICATOR
-      ================================================= */}
+      ==================================================== */}
 
       <motion.a
         href="#about"
@@ -693,7 +821,6 @@ export default function Hero({ profile }) {
           transition
           hover:text-white
         "
-        aria-label="Scroll to about"
         animate={
           reduce
             ? {}
@@ -706,6 +833,7 @@ export default function Hero({ profile }) {
           repeat: Infinity,
           ease: 'easeInOut',
         }}
+        aria-label="Scroll to about"
       >
 
         <div
@@ -735,27 +863,44 @@ export default function Hero({ profile }) {
       </motion.a>
 
 
-      {/* =================================================
+      {/* ====================================================
           MOBILE IMAGE
-      ================================================= */}
+      ==================================================== */}
 
       {avatar && (
         <motion.div
-          style={{
-            opacity: imageOpacity,
-          }}
           className="
             pointer-events-none
             absolute
             bottom-0
-            right-[-10%]
+            right-0
             z-[4]
             block
             h-[50vh]
-            w-[100%]
+            w-full
             md:hidden
           "
         >
+
+          {/* Mobile glow */}
+
+          <div
+            className="
+              absolute
+              left-1/2
+              top-1/2
+              h-[260px]
+              w-[260px]
+              -translate-x-1/2
+              -translate-y-1/2
+              rounded-full
+              bg-white/[0.05]
+              blur-[80px]
+            "
+          />
+
+
+          {/* Mobile image */}
 
           <motion.img
             src={avatar}
@@ -765,24 +910,42 @@ export default function Hero({ profile }) {
                 ? 0
                 : useTransform(
                     scrollYProgress,
-                    [0, 1],
-                    [0, 280]
+                    [0, 0.45, 1],
+                    [0, 40, 300]
                   ),
-              scale: imageScale,
+
+              opacity:
+                imageOpacity,
+
+              scale:
+                useTransform(
+                  scrollYProgress,
+                  [0, 1],
+                  [1, 1.08]
+                ),
             }}
             className="
               absolute
               inset-0
               h-full
               w-full
-              object-cover
-              object-center
-              grayscale
-              contrast-[1.15]
-              brightness-[0.9]
-              mix-blend-screen
-              mask-[radial-gradient(ellipse_70%_65%_at_50%_50%,black_20%,rgba(0,0,0,0.85)_50%,transparent_100%)]
-              [-webkit-mask-image:radial-gradient(ellipse_70%_65%_at_50%_50%,black_20%,rgba(0,0,0,0.85)_50%,transparent_100%)]
+              object-contain
+              drop-shadow-[0_0_25px_rgba(255,255,255,0.12)]
+            "
+          />
+
+
+          {/* Mobile bottom fade */}
+
+          <div
+            className="
+              absolute
+              inset-x-0
+              bottom-0
+              h-[30%]
+              bg-gradient-to-t
+              from-black
+              to-transparent
             "
           />
 
