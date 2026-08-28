@@ -17,7 +17,7 @@ const profile = {
   location: 'Bengaluru, India',
   email: 'hello@alexrivera.dev',
   socials: { github: '#', linkedin: '#', twitter: '#', website: '#' },
-  avatarUrl: null,
+  avatarUrl: 'client/public/bg.jpg',
 };
 
 const projects = [
