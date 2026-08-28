@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "seed": "node src/seed.js"
+    "seed": "node src/seed.js",
+    "migrate:images": "node src/migrateImages.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
