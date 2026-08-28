@@ -13,75 +13,62 @@ export default function ImageUpload({
 }) {
   const inputRef = useRef(null);
 
-  const [uploading, setUploading] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const [selectedFile, setSelectedFile] =
+    useState(null);
 
-  const [candidates, setCandidates] = useState([]);
+  const [localPreview, setLocalPreview] =
+    useState('');
 
-  const [selecting, setSelecting] = useState(false);
+  const [generating, setGenerating] =
+    useState(false);
+
+  const [candidates, setCandidates] =
+    useState([]);
 
   const [selectedCandidate, setSelectedCandidate] =
     useState(null);
 
+  const [selecting, setSelecting] =
+    useState(false);
+
 
   // ==========================================================
-  // NORMAL IMAGE UPLOAD
+  // CHOOSE IMAGE
   // ==========================================================
 
-  const handleFile = async (e) => {
+  const handleFile = (e) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
 
-    const fd = new FormData();
+    // Store file locally.
+    setSelectedFile(file);
 
-    fd.append('image', file);
+    // Create local preview.
+    const previewUrl =
+      URL.createObjectURL(file);
 
-    setUploading(true);
+    setLocalPreview(previewUrl);
 
-    try {
-      const res = await api.post(
-        '/upload',
-        fd,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+    // Remove old AI candidates.
+    setCandidates([]);
+    setSelectedCandidate(null);
 
-      onChange(res.data.url);
+    toast.success(
+      'Image selected. Click Generate AI Versions.'
+    );
 
-      // Reset previous AI recommendations
-      setCandidates([]);
-      setSelectedCandidate(null);
-
-      toast.success('Image uploaded');
-    } catch (err) {
-      toast.error(
-        getErrorMessage(
-          err,
-          'Upload failed'
-        )
-      );
-    } finally {
-      setUploading(false);
-
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-    }
+    // Allow selecting the same file again later.
+    e.target.value = '';
   };
 
 
   // ==========================================================
-  // GENERATE AI VERSIONS
+  // GENERATE AI IMAGES
   // ==========================================================
 
   const handleGenerateAI = async () => {
-    const file = inputRef.current?.files?.[0];
-
-    if (!file) {
+    if (!selectedFile) {
       toast.error(
         'Please choose an image first.'
       );
@@ -91,7 +78,10 @@ export default function ImageUpload({
 
     const fd = new FormData();
 
-    fd.append('image', file);
+    fd.append(
+      'image',
+      selectedFile
+    );
 
     setGenerating(true);
     setCandidates([]);
@@ -123,9 +113,10 @@ export default function ImageUpload({
       toast.success(
         `${generated.length} AI versions generated`
       );
+
     } catch (err) {
       console.error(
-        'AI generation error:',
+        '[Admin] AI generation failed:',
         err
       );
 
@@ -135,6 +126,7 @@ export default function ImageUpload({
           'AI image generation failed'
         )
       );
+
     } finally {
       setGenerating(false);
     }
@@ -150,7 +142,7 @@ export default function ImageUpload({
   ) => {
     if (!candidate?.url) {
       toast.error(
-        'Invalid image candidate.'
+        'Invalid AI image.'
       );
 
       return;
@@ -166,31 +158,24 @@ export default function ImageUpload({
         }
       );
 
+      const selectedUrl =
+        res.data?.profile?.avatarUrl ||
+        candidate.url;
+
+      // Update parent Profile form.
+      onChange(selectedUrl);
+
       setSelectedCandidate(
         candidate.id
       );
 
-      /*
-       * IMPORTANT:
-       *
-       * Update the parent profile.
-       *
-       * This eventually becomes:
-       *
-       * profile.avatarUrl
-       */
-
-      onChange(
-        res.data?.profile?.avatarUrl ||
-          candidate.url
-      );
-
       toast.success(
-        `${candidate.name} selected`
+        `${candidate.name || 'AI image'} selected`
       );
+
     } catch (err) {
       console.error(
-        'Hero selection error:',
+        '[Admin] Hero selection failed:',
         err
       );
 
@@ -200,6 +185,69 @@ export default function ImageUpload({
           'Failed to select image'
         )
       );
+
+    } finally {
+      setSelecting(false);
+    }
+  };
+
+
+  // ==========================================================
+  // USE ORIGINAL IMAGE
+  // ==========================================================
+
+  const handleUseOriginal = async () => {
+    if (!selectedFile) {
+      toast.error(
+        'Please choose an image first.'
+      );
+
+      return;
+    }
+
+    /*
+     * Upload the original only when the admin explicitly
+     * chooses to use it.
+     */
+
+    const fd = new FormData();
+
+    fd.append(
+      'image',
+      selectedFile
+    );
+
+    try {
+      setSelecting(true);
+
+      const res = await api.post(
+        '/upload',
+        fd,
+        {
+          headers: {
+            'Content-Type':
+              'multipart/form-data',
+          },
+        }
+      );
+
+      onChange(res.data.url);
+
+      setCandidates([]);
+      setSelectedCandidate(null);
+
+      toast.success(
+        'Original image selected'
+      );
+
+    } catch (err) {
+      toast.error(
+        getErrorMessage(
+          err,
+          'Upload failed'
+        )
+      );
+
     } finally {
       setSelecting(false);
     }
@@ -213,6 +261,8 @@ export default function ImageUpload({
   const handleRemove = () => {
     onChange('');
 
+    setSelectedFile(null);
+    setLocalPreview('');
     setCandidates([]);
     setSelectedCandidate(null);
 
@@ -223,11 +273,22 @@ export default function ImageUpload({
 
 
   // ==========================================================
+  // CURRENT PREVIEW
+  // ==========================================================
+
+  const previewImage =
+    localPreview ||
+    (value
+      ? mediaUrl(value)
+      : '');
+
+
+  // ==========================================================
   // RENDER
   // ==========================================================
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
 
       {/* ====================================================
           LABEL
@@ -239,21 +300,23 @@ export default function ImageUpload({
 
 
       {/* ====================================================
-          CURRENT IMAGE
+          IMAGE SELECTION
       ==================================================== */}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
 
-        <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+        {/* Preview */}
 
-          {value ? (
+        <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+
+          {previewImage ? (
             <img
-              src={mediaUrl(value)}
-              alt="Current hero"
+              src={previewImage}
+              alt="Selected hero"
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="px-2 text-center text-xs text-slate-600">
+            <span className="text-xs text-slate-600">
               No image
             </span>
           )}
@@ -261,11 +324,13 @@ export default function ImageUpload({
         </div>
 
 
-        {/* ==================================================
-            CONTROLS
-        ================================================== */}
+        {/* Controls */}
 
         <div className="flex flex-col gap-3">
+
+          {/* ================================================
+              CHOOSE IMAGE
+          ================================================= */}
 
           <input
             ref={inputRef}
@@ -273,41 +338,40 @@ export default function ImageUpload({
             accept="image/*"
             onChange={handleFile}
             disabled={
-              uploading ||
               generating ||
               selecting
             }
-            className="text-sm text-slate-400 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-slate-700 file:px-3 file:py-1.5 file:text-slate-200 hover:file:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="text-sm text-slate-400 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-slate-700 file:px-4 file:py-2 file:text-slate-200 hover:file:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
           />
 
 
-          {/* Upload status */}
+          {/* Selected file */}
 
-          {uploading && (
-            <span className="text-xs text-slate-400">
-              Uploading image...
-            </span>
+          {selectedFile && (
+            <p className="max-w-xs truncate text-xs text-slate-500">
+              Selected: {selectedFile.name}
+            </p>
           )}
 
 
-          {/* =================================================
-              AI BUTTON
+          {/* ================================================
+              GENERATE
           ================================================= */}
 
           <button
             type="button"
             onClick={handleGenerateAI}
             disabled={
-              uploading ||
+              !selectedFile ||
               generating ||
               selecting
             }
-            className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex w-fit items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
           >
 
             {generating ? (
               <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black" />
 
                 Generating...
               </>
@@ -320,16 +384,34 @@ export default function ImageUpload({
           </button>
 
 
-          {/* Remove */}
+          {/* ================================================
+              USE ORIGINAL
+          ================================================= */}
 
-          {value &&
-            !uploading &&
+          {selectedFile &&
+            !generating && (
+              <button
+                type="button"
+                onClick={handleUseOriginal}
+                disabled={selecting}
+                className="w-fit text-left text-xs text-slate-400 hover:text-white disabled:opacity-40"
+              >
+                Use original image instead
+              </button>
+            )}
+
+
+          {/* ================================================
+              REMOVE
+          ================================================= */}
+
+          {(value || selectedFile) &&
             !generating && (
               <button
                 type="button"
                 onClick={handleRemove}
                 disabled={selecting}
-                className="w-fit text-left text-xs text-red-400 transition hover:text-red-300 disabled:opacity-50"
+                className="w-fit text-left text-xs text-red-400 hover:text-red-300 disabled:opacity-40"
               >
                 Remove image
               </button>
@@ -341,7 +423,7 @@ export default function ImageUpload({
 
 
       {/* ====================================================
-          AI PROCESSING
+          PROCESSING
       ==================================================== */}
 
       {generating && (
@@ -349,16 +431,18 @@ export default function ImageUpload({
 
           <div className="flex items-center gap-3">
 
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
 
             <div>
+
               <p className="text-sm font-medium text-white">
-                Creating your portfolio portraits...
+                Creating your Hero images...
               </p>
 
               <p className="mt-1 text-xs text-slate-500">
-                This can take a little while.
+                AI is processing your portrait.
               </p>
+
             </div>
 
           </div>
@@ -367,19 +451,19 @@ export default function ImageUpload({
           <div className="mt-5 space-y-2 text-xs text-slate-500">
 
             <p>
-              ✓ Processing uploaded image
+              ✓ Uploading selected image
             </p>
 
             <p>
-              ✓ Applying monochrome treatment
+              ✓ Removing background
+            </p>
+
+            <p>
+              ✓ Applying black & white treatment
             </p>
 
             <p>
               ✓ Creating cinematic variations
-            </p>
-
-            <p>
-              ○ Preparing recommendations
             </p>
 
           </div>
@@ -389,25 +473,27 @@ export default function ImageUpload({
 
 
       {/* ====================================================
-          AI CANDIDATES
+          AI RECOMMENDATIONS
       ==================================================== */}
 
       {candidates.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-5">
 
           <div>
-            <h3 className="text-sm font-semibold text-white">
+
+            <h3 className="text-base font-semibold text-white">
               Choose your Hero image
             </h3>
 
-            <p className="mt-1 text-xs text-slate-500">
-              Select the version you want to use
-              on your portfolio.
+            <p className="mt-1 text-sm text-slate-500">
+              Select the version that best matches
+              your portfolio.
             </p>
+
           </div>
 
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
 
             {candidates.map(
               (candidate) => {
@@ -420,14 +506,14 @@ export default function ImageUpload({
                   <div
                     key={candidate.id}
                     className={[
-                      'overflow-hidden rounded-xl border transition',
+                      'overflow-hidden rounded-2xl border bg-black transition',
                       isSelected
-                        ? 'border-white/40 bg-white/10'
-                        : 'border-white/10 bg-black/20 hover:border-white/20',
+                        ? 'border-white/50'
+                        : 'border-white/10 hover:border-white/25',
                     ].join(' ')}
                   >
 
-                    {/* Image */}
+                    {/* Candidate image */}
 
                     <div className="relative aspect-[3/4] overflow-hidden bg-black">
 
@@ -437,7 +523,7 @@ export default function ImageUpload({
                         )}
                         alt={
                           candidate.name ||
-                          'AI hero candidate'
+                          'AI Hero candidate'
                         }
                         className="h-full w-full object-contain"
                       />
@@ -445,14 +531,14 @@ export default function ImageUpload({
                     </div>
 
 
-                    {/* Information */}
+                    {/* Candidate info */}
 
                     <div className="p-4">
 
-                      <p className="text-sm font-medium text-white">
+                      <h4 className="font-medium text-white">
                         {candidate.name ||
                           'AI Version'}
-                      </p>
+                      </h4>
 
                       <p className="mt-1 text-xs text-slate-500">
                         {candidate.style ||
@@ -471,11 +557,11 @@ export default function ImageUpload({
                           selecting ||
                           isSelected
                         }
-                        className="mt-4 w-full rounded-lg bg-white px-3 py-2 text-sm font-semibold text-black transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="mt-4 w-full rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
                       >
 
                         {isSelected
-                          ? '✓ Using this image'
+                          ? '✓ Selected'
                           : selecting
                             ? 'Selecting...'
                             : 'Use this image'}
@@ -496,19 +582,18 @@ export default function ImageUpload({
 
 
       {/* ====================================================
-          SELECTED STATUS
+          SUCCESS
       ==================================================== */}
 
       {selectedCandidate && (
-        <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+        <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
 
-          <p className="text-sm text-white">
-            ✓ AI Hero image selected
+          <p className="text-sm font-medium text-white">
+            ✓ Hero image selected
           </p>
 
           <p className="mt-1 text-xs text-slate-500">
-            Your Hero will use this image after
-            the profile is saved.
+            Save your profile to keep this image.
           </p>
 
         </div>
