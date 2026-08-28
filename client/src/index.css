@@ -54,7 +54,7 @@
   /* Animated multi-stop gradient text for the hero name */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(110deg, #c7d2fe 0%, #818cf8 28%, #22d3ee 60%, #a78bfa 100%);
+    background-image: linear-gradient(110deg, #ffffff 0%, #d4d4d4 45%, #737373 100%);
     background-size: 200% 100%;
   }
 }

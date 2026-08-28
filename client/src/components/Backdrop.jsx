@@ -21,10 +21,10 @@ export default function Backdrop({ blur = 'blur-2xl' }) {
           className={`absolute inset-0 h-full w-full scale-125 object-cover ${blur}`}
         />
       )}
-      {/* Ambient color mesh — also the fallback when no picture is present */}
-      <div className="absolute -left-1/4 -top-1/4 h-[70vmin] w-[70vmin] rounded-full bg-brand-600/25 blur-3xl" />
-      <div className="absolute right-[-10%] top-1/4 h-[65vmin] w-[65vmin] rounded-full bg-cyan-500/20 blur-3xl" />
-      <div className="absolute bottom-[-15%] left-1/3 h-[60vmin] w-[60vmin] rounded-full bg-violet-600/20 blur-3xl" />
+      {/* Neutral light mesh matching the hero's monochrome atmosphere */}
+      <div className="absolute -left-1/4 -top-1/4 h-[70vmin] w-[70vmin] rounded-full bg-white/[0.06] blur-3xl" />
+      <div className="absolute right-[-10%] top-1/4 h-[65vmin] w-[65vmin] rounded-full bg-white/[0.04] blur-3xl" />
+      <div className="absolute bottom-[-15%] left-1/3 h-[60vmin] w-[60vmin] rounded-full bg-white/[0.03] blur-3xl" />
       {/* Readability scrim so glass panels + text stay legible over any image */}
       <div className="absolute inset-0 bg-slate-950/70" />
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-slate-950/20 to-slate-950" />
