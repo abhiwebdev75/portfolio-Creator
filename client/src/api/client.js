@@ -3,7 +3,10 @@ import axios from 'axios';
 // In dev, requests go to /api and are proxied to the server by Vite.
 // In a split production deployment, set VITE_API_URL to the API's base URL.
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: `${import.meta.env.VITE_API_URL}/api` || '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 const TOKEN_KEY = 'portfolio_token';

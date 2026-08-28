@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
     }
 
     api
-      .get('/api/auth/me')
+      .get('/auth/me')
       .then((res) => {
         setUser(res.data.user);
       })
@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
 
   // Login
   const login = useCallback(async (email, password) => {
-    const res = await api.post('/api/auth/login', {
+    const res = await api.post('/auth/login', {
       email,
       password,
     });
