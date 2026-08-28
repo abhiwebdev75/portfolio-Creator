@@ -19,6 +19,7 @@ export default function ProjectsAdmin() {
       description="Showcase the things you've built."
       endpoint="/projects"
       fields={fields}
+      className="mx-auto w-full max-w-5xl"
       renderItem={(p) => (
         <>
           <p className="flex items-center gap-2 truncate font-medium text-white">

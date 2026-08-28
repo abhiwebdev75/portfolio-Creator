@@ -84,7 +84,7 @@ function Field({ field, value, onChange }) {
   );
 }
 
-export default function CrudManager({ title, description, endpoint, fields, renderItem }) {
+export default function CrudManager({ title, description, endpoint, fields, renderItem, className = '' }) {
   const { items, loading, create, update, remove } = useCrud(endpoint);
   const [editing, setEditing] = useState(null); // null = closed; {} = new; item = edit
   const [form, setForm] = useState({});
@@ -132,7 +132,7 @@ export default function CrudManager({ title, description, endpoint, fields, rend
   };
 
   return (
-    <div>
+    <div className={className}>
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">{title}</h1>

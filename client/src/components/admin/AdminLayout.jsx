@@ -86,7 +86,7 @@ export default function AdminLayout() {
         </div>
 
         <main className="flex-1 p-5 sm:p-8">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto w-full max-w-6xl">
             <p className="mb-6 text-sm text-slate-500">
               Signed in as <span className="text-slate-300">{user?.email}</span>
             </p>
