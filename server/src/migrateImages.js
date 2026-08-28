@@ -22,13 +22,17 @@ async function migrateModel(Model, label) {
 
   for (const item of items) {
     const sourceUrl = `${sourceBaseUrl}${item.imageUrl}`;
-    const result = await cloudinary.uploader.upload(sourceUrl, {
-      folder: 'portfolio',
-      resource_type: 'image',
-    });
+    try {
+      const result = await cloudinary.uploader.upload(sourceUrl, {
+        folder: 'portfolio',
+        resource_type: 'image',
+      });
 
-    await Model.updateOne({ _id: item._id }, { $set: { imageUrl: result.secure_url } });
-    console.log(`${label}: migrated ${item._id}`);
+      await Model.updateOne({ _id: item._id }, { $set: { imageUrl: result.secure_url } });
+      console.log(`${label}: migrated ${item._id}`);
+    } catch (error) {
+      console.error(`${label}: skipped ${item._id} (${sourceUrl}) - ${error.message}`);
+    }
   }
 
   console.log(`${label}: ${items.length} image(s) migrated`);
