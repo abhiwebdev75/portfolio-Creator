@@ -5,9 +5,10 @@ import {
   useReducedMotion,
   useScroll,
   useTransform,
+  AnimatePresence,
 } from 'framer-motion';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { HiArrowDown } from 'react-icons/hi';
 
@@ -68,7 +69,7 @@ export default function Hero({ profile }) {
 
 
   // ==========================================================
-  // HERO REF
+  // REFS
   // ==========================================================
 
   const sectionRef =
@@ -76,7 +77,15 @@ export default function Hero({ profile }) {
 
 
   // ==========================================================
-  // SCROLL ANIMATION
+  // HOVER STATE
+  // ==========================================================
+
+  const [imageHovered, setImageHovered] =
+    useState(false);
+
+
+  // ==========================================================
+  // SCROLL
   // ==========================================================
 
   const { scrollYProgress } =
@@ -90,43 +99,47 @@ export default function Hero({ profile }) {
     });
 
 
-  // Image moves right while scrolling
+  // ----------------------------------------------------------
+  // Image movement on scroll
+  // ----------------------------------------------------------
 
   const imageX =
     useTransform(
       scrollYProgress,
       [0, 0.45, 1],
-      [0, 60, 500]
+      [0, 50, 650]
     );
 
-
-  // Slight upward movement
 
   const imageY =
     useTransform(
       scrollYProgress,
       [0, 1],
-      [0, -40]
+      [0, -35]
     );
 
 
-  // Small zoom
+  // ----------------------------------------------------------
+  // Image scale
+  // ----------------------------------------------------------
 
   const imageScale =
     useTransform(
       scrollYProgress,
-      [0, 0.6, 1],
-      [1, 1.02, 1.08]
+      [0, 0.55, 1],
+      [1, 1.015, 1.08]
     );
 
 
-  // Fade away
+  // ----------------------------------------------------------
+  // Image opacity
+  // ----------------------------------------------------------
 
   const imageOpacity =
     useTransform(
       scrollYProgress,
-      [0, 0.55, 0.85, 1],
-      [1, 1, 0.25, 0]
+      [0, 0.55, 0.82, 1],
+      [1, 1, 0.35, 0]
     );
 
 
@@ -143,14 +156,14 @@ export default function Hero({ profile }) {
 
   const springX =
     useSpring(mouseX, {
-      stiffness: 45,
+      stiffness: 40,
       damping: 20,
     });
 
 
   const springY =
     useSpring(mouseY, {
-      stiffness: 45,
+      stiffness: 40,
       damping: 20,
     });
 
@@ -186,7 +199,7 @@ export default function Hero({ profile }) {
 
 
   // ==========================================================
-  // AVATAR FROM ADMIN PANEL
+  // AVATAR
   // ==========================================================
 
   const avatar =
@@ -195,7 +208,16 @@ export default function Hero({ profile }) {
       : null;
 
 
+  // ==========================================================
+  // PARTICLES
+  // ==========================================================
+
+  const particles =
+    Array.from({ length: 26 });
+
+
   return (
+
     <section
       ref={sectionRef}
       id="hero"
@@ -210,9 +232,9 @@ export default function Hero({ profile }) {
       "
     >
 
-      {/* ====================================================
+      {/* ======================================================
           BACKGROUND
-      ==================================================== */}
+      ====================================================== */}
 
       <div
         className="
@@ -224,46 +246,46 @@ export default function Hero({ profile }) {
         "
       >
 
-        {/* subtle light behind image */}
+        {/* Main soft atmosphere */}
 
         <div
           className="
             absolute
             right-[12%]
-            top-1/2
-            h-[420px]
-            w-[420px]
+            top-[45%]
+            h-[500px]
+            w-[500px]
             -translate-y-1/2
             rounded-full
             bg-white/[0.025]
-            blur-[120px]
+            blur-[140px]
           "
         />
 
-        {/* subtle center atmosphere */}
+
+        {/* Small ambient light */}
 
         <div
           className="
             absolute
-            left-1/2
-            top-1/2
-            h-[500px]
-            w-[500px]
-            -translate-x-1/2
-            -translate-y-1/2
+            right-[25%]
+            top-[30%]
+            h-[260px]
+            w-[260px]
             rounded-full
-            bg-white/[0.015]
-            blur-[150px]
+            bg-white/[0.018]
+            blur-[100px]
           "
         />
 
-        {/* very subtle grid */}
+
+        {/* Very subtle grid */}
 
         <div
           className="
             absolute
             inset-0
-            opacity-[0.025]
+            opacity-[0.022]
             [background-image:linear-gradient(rgba(255,255,255,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.5)_1px,transparent_1px)]
             [background-size:80px_80px]
           "
@@ -272,26 +294,189 @@ export default function Hero({ profile }) {
       </div>
 
 
-      {/* ====================================================
+      {/* ======================================================
+          STARS / SPARK PARTICLES
+      ====================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          z-[1]
+          overflow-hidden
+        "
+      >
+
+        {particles.map((_, index) => {
+
+          const left =
+            `${(index * 37 + 7) % 100}%`;
+
+          const top =
+            `${(index * 61 + 13) % 100}%`;
+
+          const size =
+            index % 6 === 0
+              ? 3
+              : index % 3 === 0
+                ? 2
+                : 1;
+
+
+          return (
+
+            <motion.span
+              key={index}
+
+              className="
+                absolute
+                rounded-full
+                bg-white
+              "
+
+              style={{
+                left,
+                top,
+                width: size,
+                height: size,
+              }}
+
+              animate={
+                reduce
+                  ? {
+                      opacity: 0.2,
+                    }
+                  : {
+                      opacity:
+                        index % 5 === 0
+                          ? [0.15, 0.95, 0.15]
+                          : [0.1, 0.45, 0.1],
+
+                      scale:
+                        index % 5 === 0
+                          ? [1, 1.8, 1]
+                          : [1, 1.25, 1],
+
+                      y:
+                        index % 4 === 0
+                          ? [0, -12, 0]
+                          : [0, -7, 0],
+
+                      x:
+                        index % 6 === 0
+                          ? [0, 5, 0]
+                          : [0, 2, 0],
+                    }
+              }
+
+              transition={{
+                duration:
+                  3.5 + (index % 5),
+
+                delay:
+                  (index % 9) * 0.45,
+
+                repeat: Infinity,
+
+                ease: 'easeInOut',
+              }}
+
+              initial={{
+                opacity: 0,
+              }}
+            />
+
+          );
+        })}
+
+
+        {/* ==================================================
+            EXTRA BRIGHT SPARKS
+        ================================================== */}
+
+        {[1, 2, 3, 4].map((spark) => (
+
+          <motion.span
+            key={`spark-${spark}`}
+
+            className="
+              absolute
+              h-[3px]
+              w-[3px]
+              rounded-full
+              bg-white
+              shadow-[0_0_12px_rgba(255,255,255,0.9)]
+            "
+
+            style={{
+              left:
+                `${20 + spark * 16}%`,
+
+              top:
+                `${18 + spark * 13}%`,
+            }}
+
+            animate={
+              reduce
+                ? {}
+                : {
+                    opacity: [
+                      0,
+                      1,
+                      0,
+                    ],
+
+                    scale: [
+                      0.5,
+                      1.8,
+                      0.5,
+                    ],
+                  }
+            }
+
+            transition={{
+              duration: 2.4,
+              delay: spark * 1.3,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+
+        ))}
+
+      </div>
+
+
+      {/* ======================================================
           HERO IMAGE
-      ==================================================== */}
+      ====================================================== */}
 
       {avatar && (
 
         <motion.div
+
+          onMouseEnter={() =>
+            setImageHovered(true)
+          }
+
+          onMouseLeave={() =>
+            setImageHovered(false)
+          }
+
           className="
-            pointer-events-auto
             absolute
-            right-[5%]
+            right-[2%]
             top-1/2
             z-[5]
             hidden
-            h-[66vh]
-            w-[42vw]
-            max-w-[620px]
+            h-[76vh]
+            w-[48vw]
+            max-w-[720px]
             -translate-y-1/2
             md:block
           "
+
           style={{
             x: springX,
             y: springY,
@@ -301,100 +486,187 @@ export default function Hero({ profile }) {
           {/* ==================================================
               COLOR GLOW
 
-              This uses the actual image itself.
+              This is a blurred duplicate of the actual PNG.
 
-              Because the blurred image remains colored,
-              the glow naturally follows the object's colors.
+              Therefore the glow naturally follows the
+              colors inside the uploaded image.
           ================================================== */}
 
           <motion.img
             src={avatar}
             alt=""
             aria-hidden="true"
+
             style={{
               x: imageX,
               y: imageY,
               scale: imageScale,
               opacity:
-                useTransform(
-                  imageOpacity,
-                  [0, 1],
-                  [0, 0.7]
-                ),
+                imageHovered
+                  ? imageOpacity
+                  : 0,
             }}
+
+            animate={{
+              filter: imageHovered
+                ? 'blur(38px) saturate(1.8) brightness(1.15)'
+                : 'blur(38px) saturate(1.5)',
+            }}
+
+            transition={{
+              duration: 0.45,
+              ease: 'easeOut',
+            }}
+
             className="
+              pointer-events-none
               absolute
-              inset-[8%]
-              h-[84%]
-              w-[84%]
+              inset-[-4%]
+              h-[108%]
+              w-[108%]
               object-contain
-              opacity-0
-              blur-[35px]
-              saturate-[1.5]
-              transition-opacity
-              duration-500
-              hover:opacity-100
             "
           />
 
 
           {/* ==================================================
-              MAIN IMAGE
+              SECOND COLOR HALO
+
+              Stronger only while hovering.
+          ================================================== */}
+
+          <motion.img
+            src={avatar}
+            alt=""
+            aria-hidden="true"
+
+            style={{
+              x: imageX,
+              y: imageY,
+              scale: imageScale,
+            }}
+
+            animate={{
+              opacity:
+                imageHovered
+                  ? 0.45
+                  : 0,
+
+              filter:
+                imageHovered
+                  ? 'blur(70px) saturate(2)'
+                  : 'blur(70px)',
+            }}
+
+            transition={{
+              duration: 0.5,
+              ease: 'easeOut',
+            }}
+
+            className="
+              pointer-events-none
+              absolute
+              inset-[2%]
+              h-[96%]
+              w-[96%]
+              object-contain
+            "
+          />
+
+
+          {/* ==================================================
+              MAIN PNG
           ================================================== */}
 
           <motion.img
             src={avatar}
             alt={name}
+
             style={{
               x: imageX,
               y: imageY,
               scale: imageScale,
               opacity: imageOpacity,
             }}
+
+            animate={
+              reduce
+                ? {}
+                : {
+                    y: [
+                      0,
+                      -5,
+                      0,
+                    ],
+                  }
+            }
+
+            transition={{
+              y: {
+                duration: 5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              },
+            }}
+
             className="
-              hero-person
+              pointer-events-none
               absolute
               inset-0
               h-full
               w-full
               object-contain
-              transition-all
-              duration-500
-              ease-out
-              drop-shadow-[0_18px_40px_rgba(0,0,0,0.45)]
-              hover:scale-[1.025]
+              drop-shadow-[0_20px_45px_rgba(0,0,0,0.5)]
             "
           />
 
 
           {/* ==================================================
-              HOVER COLOR GLOW
-
-              The blurred copy behind the subject creates
-              a natural glow matching the image's colors.
+              SMALL HOVER HIGHLIGHT
           ================================================== */}
 
-          <div
-            className="
-              pointer-events-none
-              absolute
-              inset-[5%]
-              rounded-full
-              opacity-0
-              blur-[65px]
-              transition-opacity
-              duration-500
-              hover:opacity-40
-            "
-          />
+          <AnimatePresence>
+
+            {imageHovered && (
+
+              <motion.div
+                initial={{
+                  opacity: 0,
+                }}
+
+                animate={{
+                  opacity: 1,
+                }}
+
+                exit={{
+                  opacity: 0,
+                }}
+
+                transition={{
+                  duration: 0.35,
+                }}
+
+                className="
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  rounded-full
+                  bg-white/[0.025]
+                  blur-[45px]
+                "
+              />
+
+            )}
+
+          </AnimatePresence>
 
         </motion.div>
       )}
 
 
-      {/* ====================================================
+      {/* ======================================================
           CONTENT
-      ==================================================== */}
+      ====================================================== */}
 
       <div
         className="
@@ -404,7 +676,7 @@ export default function Hero({ profile }) {
           grid
           min-h-[calc(100vh-4rem)]
           items-center
-          md:grid-cols-[1.15fr_0.85fr]
+          md:grid-cols-[1.1fr_0.9fr]
         "
       >
 
@@ -418,7 +690,7 @@ export default function Hero({ profile }) {
         >
 
           {/* ==================================================
-              EYEBROW
+              INTRO
           ================================================== */}
 
           <motion.p
@@ -575,16 +847,18 @@ export default function Hero({ profile }) {
             variants={item}
             className="mt-8"
           >
+
             <SocialLinks
               socials={profile?.socials}
               email={profile?.email}
             />
+
           </motion.div>
 
         </motion.div>
 
 
-        {/* Image space */}
+        {/* Reserve image column */}
 
         <div
           className="
@@ -596,9 +870,9 @@ export default function Hero({ profile }) {
       </div>
 
 
-      {/* ====================================================
+      {/* ======================================================
           LOCATION
-      ==================================================== */}
+      ====================================================== */}
 
       {profile?.location && (
 
@@ -628,12 +902,13 @@ export default function Hero({ profile }) {
       )}
 
 
-      {/* ====================================================
-          SCROLL
-      ==================================================== */}
+      {/* ======================================================
+          SCROLL INDICATOR
+      ====================================================== */}
 
       <motion.a
         href="#about"
+
         className="
           absolute
           bottom-7
@@ -644,6 +919,7 @@ export default function Hero({ profile }) {
           transition
           hover:text-white
         "
+
         animate={
           reduce
             ? {}
@@ -651,11 +927,13 @@ export default function Hero({ profile }) {
                 y: [0, 7, 0],
               }
         }
+
         transition={{
           duration: 1.8,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
+
         aria-label="Scroll to about"
       >
 
@@ -686,62 +964,66 @@ export default function Hero({ profile }) {
       </motion.a>
 
 
-      {/* ====================================================
+      {/* ======================================================
           MOBILE IMAGE
-      ==================================================== */}
+      ====================================================== */}
 
       {avatar && (
 
         <motion.div
           className="
-            pointer-events-auto
             absolute
             bottom-0
             left-1/2
             z-[4]
             block
             h-[50vh]
-            w-[90vw]
+            w-[95vw]
             -translate-x-1/2
             md:hidden
           "
+
           style={{
             x: springX,
           }}
         >
 
-          {/* colored blurred glow */}
+          {/* Mobile colored glow */}
 
-          <img
+          <motion.img
             src={avatar}
             alt=""
             aria-hidden="true"
+
             className="
+              pointer-events-none
               absolute
-              inset-[12%]
-              h-[76%]
-              w-[76%]
+              inset-[5%]
+              h-[90%]
+              w-[90%]
               object-contain
-              blur-[35px]
-              opacity-50
-              saturate-[1.5]
+              blur-[45px]
+              saturate-[1.7]
+              opacity-45
             "
           />
 
 
-          {/* actual PNG */}
+          {/* Mobile image */}
 
           <motion.img
             src={avatar}
             alt={name}
+
             style={{
               x: useTransform(
                 scrollYProgress,
                 [0, 0.45, 1],
-                [0, 30, 250]
+                [0, 25, 280]
               ),
 
-              opacity: imageOpacity,
+              opacity:
+                imageOpacity,
 
               scale:
                 useTransform(
@@ -750,7 +1032,9 @@ export default function Hero({ profile }) {
                   [1, 1.05]
                 ),
             }}
+
             className="
+              pointer-events-none
               absolute
               inset-0
               h-full
@@ -760,7 +1044,7 @@ export default function Hero({ profile }) {
           />
 
 
-          {/* bottom fade */}
+          {/* Mobile bottom fade */}
 
           <div
             className="
@@ -768,7 +1052,7 @@ export default function Hero({ profile }) {
               absolute
               inset-x-0
               bottom-0
-              h-[25%]
+              h-[28%]
               bg-gradient-to-t
               from-black
               to-transparent
